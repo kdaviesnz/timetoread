@@ -3,27 +3,27 @@ declare(strict_types=1);
 
 namespace kdaviesnz\timetoread;
 
-use kdaviesnz\readability\Readability;
+use kdaviesnz\fleschkincaid\FleschKincaid;
 
 class TimeToRead implements \ITimetoRead
 {
 
     public $data; // json string
     private $content;
-    private $readability = array();
+    private $fc;
 
     /**
-     * FleschKincaid constructor.
+     * TimeToREad constructor.
      */
     public function __construct(string $content)
     {
         $this->content = $content;
-        $fc = new Readability($this->content);
-        $this->readability = json_decode($fc->data);
+        $temp = new FleschKincaid($this->content);
+        $this->fc = json_decode($temp->data);
 
         $this->data = json_encode(array(
             "minutes" => $this->getMinutes(),
-            "readability"=>$fc
+            "readability"=>$this->fc
         ));
     }
 
@@ -39,8 +39,8 @@ class TimeToRead implements \ITimetoRead
          Rates of reading include reading for memorization (fewer than 100 words per minute [wpm]); reading for learning (100–200 wpm); reading for comprehension (200–400 wpm); and skimming (400–700 wpm). Reading for comprehension is the essence of the daily reading of most people. Skimming is for superficially processing large quantities of text at a low level of comprehension (below 50%).
          */
         $readingRate = 0; // words per minute
-        $reading_ease = $this->readability->reading_ease;
-        $word_count = $this->readability->word_count;
+        $reading_ease = $this->fc->reading_ease;
+        $word_count = $this->fc->word_count;
         if ($reading_ease <20) {
            $readingRate = 100;
         } elseif($reading_ease >=20 && $reading_ease <50) {
